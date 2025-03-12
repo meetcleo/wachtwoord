@@ -1,0 +1,21 @@
+#! /usr/bin/env ruby
+# typed: true
+# frozen_string_literal: true
+
+require 'English'
+require 'tapioca'
+require 'wachtwoord'
+
+matcher = Wachtwoord::SecretNameMatcher.new
+lines_with_secret_names = T.let(false, T::Boolean)
+$ARGV.each do |file_name|
+  file_name = file_name.chomp
+  File.open(file_name).each_line("\n") do |line|
+    next unless matcher.secret_name?(line)
+
+    lines_with_secret_names = true
+    warn "potential secret in #{file_name} on line #{$INPUT_LINE_NUMBER}"
+  end
+end
+
+exit(1) if lines_with_secret_names
