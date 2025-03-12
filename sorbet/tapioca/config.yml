@@ -1,0 +1,18 @@
+gem:
+  # Add your `gem` command parameters here:
+  #
+  exclude:
+  - 'aws-sdk-secretsmanager'
+  - 'logger'
+  - 'rubocop-sorbet'
+  - 'minitest-hooks'
+  - 'tapioca'
+  - 'mocha'
+  # doc: true
+  # workers: 5
+dsl:
+  # Add your `dsl` command parameters here:
+  #
+  # exclude:
+  # - SomeGeneratorName
+  # workers: 5
