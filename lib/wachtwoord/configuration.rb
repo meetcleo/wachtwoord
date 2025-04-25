@@ -5,6 +5,7 @@ module Wachtwoord
   class Configuration
     extend T::Sig
     SECRET_NAME_TOKENS = %w[
+      APP_ID
       AUTH
       CONNECTION_STRING
       DATABASE_.*URL
@@ -17,6 +18,8 @@ module Wachtwoord
       PROXY_URL
       SECRET
       SLACK_WEBHOOK
+      SID
+      SIGNATURE
       TOKEN
       REDIS_.*URL
     ].freeze
