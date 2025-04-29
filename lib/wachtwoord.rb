@@ -51,6 +51,7 @@ module Wachtwoord
         existing_secret_value = ENV.fetch(env_name, nil)
         raise ChangingExistingEnvError, "Unexpected change to ENV: #{env_name}" if existing_secret_value && existing_secret_value != secret_value
 
+        configuration.logger.debug { "[Wachtwoord] setting ENV: #{env_name}" }
         ENV[env_name] = secret_value
       end
     end
@@ -64,7 +65,7 @@ module Wachtwoord
 
     sig { returns(String) }
     def region
-      ENV.fetch('AWS_REGION')
+      ENV.fetch('AWS_REGION', 'us-east-1')
     end
 
     sig { returns(T::Hash[Secret, VersionStage]) }

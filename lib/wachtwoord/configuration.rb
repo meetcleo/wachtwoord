@@ -41,11 +41,15 @@ module Wachtwoord
     sig { returns(String) }
     attr_accessor :version_stage_prefix
 
+    sig { returns(T.untyped) }
+    attr_accessor :logger
+
     def initialize
       @secret_name_tokens = SECRET_NAME_TOKENS.dup
       @secret_version_env_name_prefix = SECRET_VERSION_ENV_NAME_PREFIX
       @allowed_secret_names = []
       @version_stage_prefix = VERSION_STAGE_PREFIX
+      @logger = Logger.new($stdout)
     end
   end
 end
