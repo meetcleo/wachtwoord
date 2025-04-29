@@ -3,7 +3,6 @@
 # frozen_string_literal: true
 
 require 'English'
-require 'tapioca'
 require 'wachtwoord'
 
 matcher = Wachtwoord::SecretNameMatcher.new

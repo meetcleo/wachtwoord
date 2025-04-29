@@ -1,6 +1,7 @@
 # typed: true
 # frozen_string_literal: true
 
+require 'sorbet-runtime'
 require 'aws-sdk-secretsmanager'
 require_relative 'wachtwoord/version'
 require_relative 'wachtwoord/configuration'

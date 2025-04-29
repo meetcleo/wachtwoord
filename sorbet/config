@@ -1,5 +1,4 @@
 --dir
 .
-exe/wachtwoord
 --ignore=tmp/
 --ignore=vendor/
