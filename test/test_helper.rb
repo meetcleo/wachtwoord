@@ -4,6 +4,7 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'tapioca'
 require 'wachtwoord'
+require 'debug'
 
 require 'minitest/hooks'
 require 'mocha/minitest'

@@ -23,3 +23,5 @@ gem 'tapioca', require: 'false'
 
 # connection_pool.rb:8: warning: logger was loaded from the standard library, but will no longer be part of the default gems starting from Ruby 3.5.0.
 gem 'logger'
+
+gem 'debug', require: 'false'
