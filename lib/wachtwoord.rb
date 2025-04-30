@@ -11,6 +11,7 @@ require_relative 'wachtwoord/version_stage'
 require_relative 'wachtwoord/secret'
 require_relative 'wachtwoord/fetch'
 require_relative 'wachtwoord/manager'
+require_relative 'wachtwoord/import'
 require_relative 'wachtwoord/railtie' if defined? Rails
 
 module Wachtwoord
@@ -57,12 +58,12 @@ module Wachtwoord
       end
     end
 
-    private
-
     sig { returns(T.untyped) }
     def client
       T.let(::Aws::SecretsManager::Client, T.untyped).new(region:)
     end
+
+    private
 
     sig { returns(String) }
     def region
