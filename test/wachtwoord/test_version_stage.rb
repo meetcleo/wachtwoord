@@ -34,6 +34,10 @@ module Wachtwoord
       assert_equal described_class.new(version_number: 1), described_class.first_version_stage
     end
 
+    def test_newest_version_stage
+      assert_equal described_class.new(version_number: -1), described_class.newest_version_stage
+    end
+
     def test_new
       assert_equal described_class.new(version_number: 1), described_class.new(version_number: 1)
       assert_equal described_class.new(version_number: 1), described_class.new(serialized_version_stage: 'CLEO-001')

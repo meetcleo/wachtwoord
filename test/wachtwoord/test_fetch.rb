@@ -51,6 +51,15 @@ module Wachtwoord
       assert_equal({ 'SOMETHING' => 'blah' }, result)
     end
 
+    def test_secret_values_by_env_name_with_newest_version
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:))
+      client.expects(:get_secret_value).never
+
+      result = instance(desired_version_stages_by_secret: { secret => VersionStage.newest_version_stage }).secret_values_by_env_name
+
+      assert_equal({ 'SOMETHING' => 'blah' }, result)
+    end
+
     def test_secret_values_by_env_name_with_older_version
       other_version_stage = VersionStage.new(version_number: version_stage.version_number + 1)
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:))

@@ -18,7 +18,7 @@ module Wachtwoord
     def initialize(desired_version_stages_by_secret:, client:, raise_if_not_found: true)
       @client = client
       @desired_version_stages_by_secret = desired_version_stages_by_secret
-      @raise_if_not_found = raise_if_not_found
+      @raise_if_not_found = T.must(raise_if_not_found)
     end
 
     sig { returns(T::Hash[String, String]) }
@@ -40,9 +40,9 @@ module Wachtwoord
     def secret_value_pair(current_version_secret)
       secret = Wachtwoord::Secret.new(namespaced_name: current_version_secret[:name])
       current_version_stage = Wachtwoord::VersionStage.find_first(serialized_version_stages: current_version_secret[:version_stages])
-      desired_version_stage = desired_version_stages_by_secret[secret]
+      desired_version_stage = T.must(desired_version_stages_by_secret[secret])
       env_name = secret.env_name
-      return [env_name, secret_value(current_version_secret[:secret_string])] if desired_version_stage == current_version_stage
+      return [env_name, secret_value(current_version_secret[:secret_string])] if desired_version_stage == current_version_stage || desired_version_stage == VersionStage.newest_version_stage
 
       desired_version_secret = fetch_secret_at_version_stage(secret:, version_stage: desired_version_stage)
       [env_name, secret_value(desired_version_secret[:secret_string])]
@@ -135,6 +135,13 @@ module Wachtwoord
       JSON.parse(secret_string)[Wachtwoord::Manager::SECRET_KEY.to_s]
     end
 
-    attr_reader :desired_version_stages_by_secret, :client, :raise_if_not_found
+    sig { returns(T::Hash[Secret, VersionStage]) }
+    attr_reader :desired_version_stages_by_secret
+
+    sig { returns(T.untyped) }
+    attr_reader :client
+
+    sig { returns(T::Boolean) }
+    attr_reader :raise_if_not_found
   end
 end
