@@ -22,6 +22,14 @@ module Wachtwoord
       assert_equal({ 'SOMETHING' => 'blah' }, result)
     end
 
+    def test_secret_values_by_env_name_with_latest_version_missing_version_stage
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage: nil))
+
+      result = instance(desired_version_stages_by_secret: { secret => version_stage }).secret_values_by_env_name
+
+      assert_equal({ 'SOMETHING' => 'blah' }, result)
+    end
+
     def test_secret_values_by_env_name_with_additional_response
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, next_token: 'not expected'))
 
@@ -111,7 +119,7 @@ module Wachtwoord
             version_id: 'a1b2c3d4-5678-90ab-cdef-EXAMPLEaaaaa',
             version_stages: [
               'AWSCURRENT',
-              version_stage.serialized_version_stage
+              version_stage ? version_stage.serialized_version_stage : 'missing_version_stage'
             ]
           }
         ]

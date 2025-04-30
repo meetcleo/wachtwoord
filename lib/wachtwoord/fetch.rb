@@ -41,8 +41,14 @@ module Wachtwoord
       secret = Wachtwoord::Secret.new(namespaced_name: current_version_secret[:name])
       current_version_stage = Wachtwoord::VersionStage.find_first(serialized_version_stages: current_version_secret[:version_stages])
       desired_version_stage = T.must(desired_version_stages_by_secret[secret])
+
+      unless current_version_stage
+        Wachtwoord.configuration.logger.warn("[Wachtwoord] Version stage missing for secret named: #{secret.name}. It could indicate adding/updating partially failed.")
+        current_version_stage = desired_version_stage
+      end
+
       env_name = secret.env_name
-      return [env_name, secret_value(current_version_secret[:secret_string])] if desired_version_stage == current_version_stage || desired_version_stage == VersionStage.newest_version_stage
+      return [env_name, secret_value(current_version_secret[:secret_string])] if desired_version_stage == VersionStage.newest_version_stage || desired_version_stage == current_version_stage
 
       desired_version_secret = fetch_secret_at_version_stage(secret:, version_stage: desired_version_stage)
       [env_name, secret_value(desired_version_secret[:secret_string])]
