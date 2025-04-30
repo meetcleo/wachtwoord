@@ -5,6 +5,7 @@ module Wachtwoord
   class Configuration
     extend T::Sig
     SECRET_NAME_TOKENS = %w[
+      APP_ID
       AUTH
       CONNECTION_STRING
       DATABASE_.*URL
@@ -17,6 +18,8 @@ module Wachtwoord
       PROXY_URL
       SECRET
       SLACK_WEBHOOK
+      SID
+      SIGNATURE
       TOKEN
       REDIS_.*URL
     ].freeze
@@ -38,11 +41,15 @@ module Wachtwoord
     sig { returns(String) }
     attr_accessor :version_stage_prefix
 
+    sig { returns(T.untyped) }
+    attr_accessor :logger
+
     def initialize
       @secret_name_tokens = SECRET_NAME_TOKENS.dup
       @secret_version_env_name_prefix = SECRET_VERSION_ENV_NAME_PREFIX
       @allowed_secret_names = []
       @version_stage_prefix = VERSION_STAGE_PREFIX
+      @logger = Logger.new($stdout)
     end
   end
 end
