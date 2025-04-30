@@ -3,6 +3,7 @@
 
 require 'sorbet-runtime'
 require 'aws-sdk-secretsmanager'
+require 'dotenv'
 require_relative 'wachtwoord/version'
 require_relative 'wachtwoord/configuration'
 require_relative 'wachtwoord/secret_name_matcher'

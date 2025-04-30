@@ -3,11 +3,14 @@ gem:
   #
   exclude:
   - 'aws-sdk-secretsmanager'
+  - 'debug'
+  - 'dotenv'
   - 'logger'
-  - 'rubocop-sorbet'
   - 'minitest-hooks'
-  - 'tapioca'
   - 'mocha'
+  - 'rubocop-sorbet'
+  - 'sorbet-runtime'
+  - 'tapioca'
   # doc: true
   # workers: 5
 dsl:
