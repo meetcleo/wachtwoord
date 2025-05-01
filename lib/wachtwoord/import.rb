@@ -40,14 +40,20 @@ module Wachtwoord
         new_config_value
       end
 
-      # TODO: do we need to do any quoting of strings with special chars?
-      dotenv_content = new_configs.sort.map { |pair| pair.join('=') }.join("\n")
-      File.write(dotenv_file_path, dotenv_content)
+      File.write(dotenv_file_path, dotenv_content(new_configs:))
 
       (secrets_from_source.keys + configs_from_source.keys).sort
     end
 
     private
+
+    sig { params(new_configs: T::Hash[String, String]).returns(String) }
+    def dotenv_content(new_configs:)
+      new_configs.sort.map do |key, value|
+        newline_safe_value = value.include?("\n") ? "\"#{value}\"" : value
+        [key, newline_safe_value].join('=')
+      end.join("\n")
+    end
 
     sig { returns(T::Hash[String, String]) }
     def secrets_from_source
