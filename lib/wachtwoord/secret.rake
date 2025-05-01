@@ -36,8 +36,10 @@ namespace :secret do # rubocop:disable Metrics/BlockLength
     application_name = args[:application_name]
     dotenv_file_path = args[:dotenv_file_path]
     overwrite = args[:overwrite] == 'true'
-    Wachtwoord::Import.from_heroku(application_name:, dotenv_file_path:, overwrite:)
+    imported_keys = Wachtwoord::Import.from_heroku(application_name:, dotenv_file_path:, overwrite:)
 
+    puts 'Imported these ENVs...'
+    puts imported_keys.join("\n")
     puts "Wrote configs to: #{dotenv_file_path}. Secrets to: https://us-east-1.console.aws.amazon.com/secretsmanager/listsecrets?region=us-east-1&search=name%3D#{application_name}"
   end
 end

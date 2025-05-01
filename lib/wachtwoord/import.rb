@@ -12,7 +12,7 @@ module Wachtwoord
       JSON.parse(`heroku config -j -a #{application_name}`).except(*Wachtwoord.configuration.do_not_import_secret_names)
     end
 
-    sig { params(application_name: String, dotenv_file_path: String, overwrite: T::Boolean).void }
+    sig { params(application_name: String, dotenv_file_path: String, overwrite: T::Boolean).returns(T::Array[String]) }
     def self.from_heroku(application_name:, dotenv_file_path:, overwrite: false)
       new(envs_from_source: envs_from_heroku(application_name:), dotenv_file_path:, overwrite:, override_namespace: application_name).start
     end
@@ -26,7 +26,7 @@ module Wachtwoord
       @secret_name_matcher = SecretNameMatcher.new
     end
 
-    sig { void }
+    sig { returns(T::Array[String]) }
     def start
       new_configs = configs_from_source.merge(secret_version_stages)
       # Grab anything already in the .env file, but bail if we already have the key, but with a different value
@@ -43,6 +43,8 @@ module Wachtwoord
       # TODO: do we need to do any quoting of strings with special chars?
       dotenv_content = new_configs.sort.map { |pair| pair.join('=') }.join("\n")
       File.write(dotenv_file_path, dotenv_content)
+
+      (secrets_from_source.keys + configs_from_source.keys).sort
     end
 
     private
