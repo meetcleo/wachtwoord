@@ -17,7 +17,7 @@ require_relative 'wachtwoord/railtie' if defined? Rails
 module Wachtwoord
   extend T::Sig
   class ChangingExistingEnvError < StandardError; end
-  class UknownClashBehaviourError < StandardError; end
+  class UnknownClashBehaviourError < StandardError; end
 
   class << self
     extend T::Sig
@@ -95,7 +95,7 @@ module Wachtwoord
         configuration.logger.warn { "[Wachtwoord] overwriting existing ENV: #{env_name}" }
         secret_value
       else
-        raise UknownClashBehaviourError, "Unknown clash behaviour: #{clash_behaviour}"
+        raise UnknownClashBehaviourError, "Unknown clash behaviour: #{clash_behaviour}"
       end
     end
   end
