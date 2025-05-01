@@ -9,7 +9,7 @@ module Wachtwoord
 
     sig { params(application_name: String).returns(T::Hash[String, String]) }
     def self.envs_from_heroku(application_name:)
-      Dotenv::Parser.new(`heroku config -s -a #{application_name} |grep -v '^HEROKU_'`).call
+      JSON.parse(`heroku config -j -a #{application_name}`).except(*Wachtwoord.configuration.do_not_import_secret_names)
     end
 
     sig { params(application_name: String, dotenv_file_path: String, overwrite: T::Boolean).void }
