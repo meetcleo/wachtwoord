@@ -22,6 +22,14 @@ module Wachtwoord
       assert_equal({ 'SOMETHING' => 'blah' }, result)
     end
 
+    def test_secret_values_by_env_name_with_latest_version_missing_version_stage
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage: nil))
+
+      result = instance(desired_version_stages_by_secret: { secret => version_stage }).secret_values_by_env_name
+
+      assert_equal({ 'SOMETHING' => 'blah' }, result)
+    end
+
     def test_secret_values_by_env_name_with_additional_response
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, next_token: 'not expected'))
 
@@ -47,6 +55,15 @@ module Wachtwoord
 
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, errors: [{ error_code: 'ResourceNotFoundException' }]))
       result = instance(desired_version_stages_by_secret: { secret => version_stage }, raise_if_not_found: false).secret_values_by_env_name
+
+      assert_equal({ 'SOMETHING' => 'blah' }, result)
+    end
+
+    def test_secret_values_by_env_name_with_newest_version
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:))
+      client.expects(:get_secret_value).never
+
+      result = instance(desired_version_stages_by_secret: { secret => VersionStage.newest_version_stage }).secret_values_by_env_name
 
       assert_equal({ 'SOMETHING' => 'blah' }, result)
     end
@@ -102,7 +119,7 @@ module Wachtwoord
             version_id: 'a1b2c3d4-5678-90ab-cdef-EXAMPLEaaaaa',
             version_stages: [
               'AWSCURRENT',
-              version_stage.serialized_version_stage
+              version_stage ? version_stage.serialized_version_stage : 'missing_version_stage'
             ]
           }
         ]

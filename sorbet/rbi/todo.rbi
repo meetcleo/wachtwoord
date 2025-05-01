@@ -8,3 +8,11 @@ module ::Aws::SecretsManager::Client; end
 module ::Aws::SecretsManager::Errors::ResourceNotFoundException; end
 class ::Rails::Railtie; end
 module Minitest::Hooks; end
+
+class Dotenv::Parser
+  def call
+  end
+
+  def initialize(input)
+  end
+end

@@ -34,6 +34,11 @@ module Wachtwoord
       def first_version_stage
         new(version_number: 1)
       end
+
+      sig { returns(VersionStage) }
+      def newest_version_stage
+        new(version_number: -1)
+      end
     end
 
     sig { params(serialized_version_stage: T.nilable(String), version_number: T.nilable(Integer)).void }

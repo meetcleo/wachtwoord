@@ -23,11 +23,26 @@ module Wachtwoord
       TOKEN
       REDIS_.*URL
     ].freeze
+    DO_NOT_IMPORT_SECRET_NAMES = %w[
+      AWS_SECRET_ACCESS_KEY
+      HEROKU_APP_DEFAULT_DOMAIN_NAME
+      HEROKU_APP_ID
+      HEROKU_APP_NAME
+      HEROKU_RELEASE_COMMIT
+      HEROKU_RELEASE_CREATED_AT
+      HEROKU_RELEASE_DESCRIPTION
+      HEROKU_RELEASE_VERSION
+      HEROKU_SLUG_COMMIT
+      HEROKU_SLUG_DESCRIPTION
+    ].freeze
     SECRET_VERSION_ENV_NAME_PREFIX = 'SECRET_VERSION_ENV_'
     VERSION_STAGE_PREFIX = 'CLEO-'
 
     sig { returns(T::Array[String]) }
     attr_accessor :secret_name_tokens
+
+    sig { returns(T::Array[String]) }
+    attr_accessor :do_not_import_secret_names
 
     sig { returns(T::Array[String]) }
     attr_accessor :allowed_secret_names
@@ -46,6 +61,7 @@ module Wachtwoord
 
     def initialize
       @secret_name_tokens = SECRET_NAME_TOKENS.dup
+      @do_not_import_secret_names = DO_NOT_IMPORT_SECRET_NAMES.dup
       @secret_version_env_name_prefix = SECRET_VERSION_ENV_NAME_PREFIX
       @allowed_secret_names = []
       @version_stage_prefix = VERSION_STAGE_PREFIX
