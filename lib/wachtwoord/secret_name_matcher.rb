@@ -14,7 +14,7 @@ module Wachtwoord
 
     def initialize
       @secret_name_patterns = Wachtwoord.configuration.secret_name_tokens.map { |token| self.class.token_to_pattern(token) }
-      @normalized_allowed_secret_names = Wachtwoord.configuration.allowed_secret_names.map(&:downcase)
+      @normalized_allowed_config_names = Wachtwoord.configuration.allowed_config_names.map(&:downcase)
       @secret_version_env_name_prefix = Wachtwoord.configuration.secret_version_env_name_prefix.downcase
     end
 
@@ -24,7 +24,7 @@ module Wachtwoord
 
       normalized_name = name.strip.downcase
       return false if normalized_name.start_with?(secret_version_env_name_prefix)
-      return false if normalized_allowed_secret_names.include?(normalized_name)
+      return false if normalized_allowed_config_names.include?(normalized_name)
 
       secret_name_patterns.any? { |secret_name_pattern| normalized_name.match(secret_name_pattern) }
     end
@@ -35,7 +35,7 @@ module Wachtwoord
     attr_reader :secret_name_patterns
 
     sig { returns(T::Array[String]) }
-    attr_reader :normalized_allowed_secret_names
+    attr_reader :normalized_allowed_config_names
 
     sig { returns(String) }
     attr_reader :secret_version_env_name_prefix

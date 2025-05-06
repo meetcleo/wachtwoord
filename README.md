@@ -48,6 +48,8 @@ Wachtwoord.configure do |config|
 end
 ```
 
+Or, you can set the `WACHTWOORD_SECRETS_NAMESPACE` env.
+
 #### Secret name tokens
 
 Secret name tokens are what's used to pattern match for detecting potential plain-text secrets in your `.env` files. The configuration comes with a default list of tokens, which you can customise as needed.
@@ -60,17 +62,21 @@ Wachtwoord.configure do |config|
 end
 ```
 
-#### Allowed secret names
+Or, you can set the `WACHTWOORD_SECRET_NAME_TOKENS` env with comma-separated values.
+
+#### Allowed config names
 
 Related to the above, you can also provide an allow-list of ENV names you want to allow-list, so that they are not counted as plain-text secrets in your `.env` files.
 
-Adding an allowed secret name:
+Adding an allowed config name:
 
 ```ruby
 Wachtwoord.configure do |config|
-  config.allowed_secret_names << 'SECRET_AUTH_TOKEN_JK'
+  config.allowed_config_names << 'SECRET_AUTH_TOKEN_JK'
 end
 ```
+
+Or, you can set the `WACHTWOORD_ALLOWED_CONFIG_NAMES` env with comma-separated values.
 
 #### AWS user
 
@@ -98,8 +104,8 @@ You'll need an AWS user or role with the following access to secrets manager:
 			"Sid": "VisualEditor1",
 			"Effect": "Allow",
 			"Action": [
-				"secretsmanager:GetRandomPassword", # TODO: double check this is required
-				"secretsmanager:ListSecrets", # TODO: double check this is required
+				"secretsmanager:GetRandomPassword",
+				"secretsmanager:ListSecrets",
 				"secretsmanager:BatchGetSecretValue"
 			],
 			"Resource": "*"
@@ -118,7 +124,7 @@ potential secret in .env.production on line 74
 potential secret in .env.production on line 111
 ```
 
-Useful for pre-commit hooks, you can pass a list of filenames and it will check those files for any lines that look like they might contain plain-text secrets. It fails with a non-zero exit code and prints the offending line numbers. See also `secret_name_tokens` and `allowed_secret_names` configurations.
+Useful for pre-commit hooks, you can pass a list of filenames and it will check those files for any lines that look like they might contain plain-text secrets. It fails with a non-zero exit code and prints the offending line numbers. See also `secret_name_tokens` and `allowed_config_names` configurations.
 
 ### Adding a new secret:
 
