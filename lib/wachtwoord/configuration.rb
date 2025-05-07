@@ -23,7 +23,7 @@ module Wachtwoord
       TOKEN
       REDIS_.*URL
     ].freeze
-    DO_NOT_IMPORT_SECRET_NAMES = %w[
+    DO_NOT_IMPORT_NAMES = %w[
       AWS_SECRET_ACCESS_KEY
       HEROKU_APP_DEFAULT_DOMAIN_NAME
       HEROKU_APP_ID
@@ -42,10 +42,10 @@ module Wachtwoord
     attr_accessor :secret_name_tokens
 
     sig { returns(T::Array[String]) }
-    attr_accessor :do_not_import_secret_names
+    attr_accessor :do_not_import_names
 
     sig { returns(T::Array[String]) }
-    attr_accessor :allowed_secret_names
+    attr_accessor :allowed_config_names
 
     sig { returns(String) }
     attr_accessor :secret_version_env_name_prefix
@@ -56,16 +56,21 @@ module Wachtwoord
     sig { returns(String) }
     attr_accessor :version_stage_prefix
 
+    sig { returns(T::Boolean) }
+    attr_accessor :enabled
+
     sig { returns(T.untyped) }
     attr_accessor :logger
 
     def initialize
-      @secret_name_tokens = SECRET_NAME_TOKENS.dup
-      @do_not_import_secret_names = DO_NOT_IMPORT_SECRET_NAMES.dup
+      @secret_name_tokens = SECRET_NAME_TOKENS.dup + ENV.fetch('WACHTWOORD_SECRET_NAME_TOKENS', '').split(',')
+      @do_not_import_names = DO_NOT_IMPORT_NAMES.dup + ENV.fetch('WACHTWOORD_DO_NOT_IMPORT_NAMES', '').split(',')
       @secret_version_env_name_prefix = SECRET_VERSION_ENV_NAME_PREFIX
-      @allowed_secret_names = []
+      @allowed_config_names = ENV.fetch('WACHTWOORD_ALLOWED_CONFIG_NAMES', '').split(',')
       @version_stage_prefix = VERSION_STAGE_PREFIX
       @logger = Logger.new($stdout)
+      @secrets_namespace = ENV.fetch('WACHTWOORD_SECRETS_NAMESPACE', nil)
+      @enabled = ENV.fetch('WACHTWOORD_ENABLED', 'true') == 'true'
     end
   end
 end

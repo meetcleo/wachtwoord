@@ -9,7 +9,7 @@ module Wachtwoord
 
     sig { params(application_name: String).returns(T::Hash[String, String]) }
     def self.envs_from_heroku(application_name:)
-      JSON.parse(`heroku config -j -a #{application_name}`).except(*Wachtwoord.configuration.do_not_import_secret_names)
+      JSON.parse(`heroku config -j -a #{application_name}`)
     end
 
     sig { params(application_name: String, dotenv_file_path: String, overwrite: T::Boolean).returns(T::Array[String]) }
@@ -19,7 +19,7 @@ module Wachtwoord
 
     sig { params(envs_from_source: T::Hash[String, String], dotenv_file_path: String, overwrite: T::Boolean, override_namespace: String).void }
     def initialize(envs_from_source:, dotenv_file_path:, overwrite:, override_namespace:)
-      @envs_from_source = envs_from_source
+      @envs_from_source = envs_from_source.except(*T.unsafe(Wachtwoord.configuration.do_not_import_names))
       @dotenv_file_path = dotenv_file_path
       @overwrite = overwrite
       @override_namespace = override_namespace

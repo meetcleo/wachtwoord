@@ -8,7 +8,7 @@ module Wachtwoord
     def test_that_it_respects_the_allow_list
       instance_without_allow_list = described_class.new
       Wachtwoord.configure do |config|
-        config.allowed_secret_names << 'SECRET_AUTH_TOKEN'
+        config.allowed_config_names << 'SECRET_AUTH_TOKEN'
       end
       instance_with_allow_list = described_class.new
 

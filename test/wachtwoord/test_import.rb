@@ -10,6 +10,7 @@ module Wachtwoord
       @namespace = 'meetcleo_production'
       Wachtwoord.configure do |config|
         config.secrets_namespace = namespace
+        config.do_not_import_names = ['CONFIG_3']
       end
       @client = mock(:client)
       @secret = Secret.new(name: 'secret_key_1')
@@ -22,7 +23,7 @@ module Wachtwoord
       expect_create_secret
 
       Tempfile.open('foo') do |dotenv_file|
-        described_class.new(envs_from_source: { 'config_1' => 'blah1', 'secret_key_1' => 'blah2', 'CONFIG_2' => "a\nb\nc" }, dotenv_file_path: dotenv_file.path, overwrite: false, override_namespace: namespace).start
+        described_class.new(envs_from_source: { 'config_1' => 'blah1', 'secret_key_1' => 'blah2', 'CONFIG_2' => "a\nb\nc", 'CONFIG_3' => 'blah3' }, dotenv_file_path: dotenv_file.path, overwrite: false, override_namespace: namespace).start
 
         assert_equal("CONFIG_1=blah1\nCONFIG_2=\"a\nb\nc\"\nSECRET_VERSION_ENV_SECRET_KEY_1=1", dotenv_file.read)
       end
