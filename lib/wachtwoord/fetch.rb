@@ -13,6 +13,8 @@ module Wachtwoord
     class AdditionalSecretsError < StandardError; end
     class FetchingSecretsError < StandardError; end
     MAX_SECRETS_PER_FETCH = 20 # Limit imposed by AWS
+    RESOURCE_NOT_FOUND_ERROR_CLASS_NAME = 'ResourceNotFoundException'
+    MISSING_SECRET_PLACEHOLDER = { secret_string: { Wachtwoord::Manager::SECRET_KEY => '' }.to_json }.freeze
 
     sig { params(desired_version_stages_by_secret: T::Hash[Secret, VersionStage], client: T.untyped, raise_if_not_found: T.nilable(T::Boolean)).void }
     def initialize(desired_version_stages_by_secret:, client:, raise_if_not_found: true)
@@ -108,10 +110,16 @@ module Wachtwoord
     def validate_response!(response)
       raise AdditionalSecretsError, 'A `next_token` was provided in the response indicating there is more data to fetch, but we do not support this' if response[:next_token]
 
-      not_found_errors = response[:errors].select { |error| error[:error_code] == 'ResourceNotFoundException' }
-      other_errors = response[:errors].reject { |error| error[:error_code] == 'ResourceNotFoundException' }
+      not_found_errors = response[:errors].select { |error| error[:error_code] == RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }
+      other_errors = response[:errors].reject { |error| error[:error_code] == RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }
       raise FetchingSecretsError, "errors from secrets manager API: #{other_errors}" if other_errors.any?
-      raise MissingSecretsError, "couldn't find some secrets: #{not_found_errors}" if not_found_errors.any? && raise_if_not_found
+
+      return unless not_found_errors.any?
+
+      missing_secrets_message = "couldn't find some secrets: #{not_found_errors}"
+      raise MissingSecretsError, missing_secrets_message if raise_if_not_found
+
+      Wachtwoord.configuration.logger.warn("[Wachtwoord] #{missing_secrets_message}")
     end
 
     # See: https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/SecretsManager/Client.html#get_secret_value-instance_method
@@ -133,7 +141,11 @@ module Wachtwoord
                                 version_stage: version_stage.serialized_version_stage
                               }).to_h
     rescue ::Aws::SecretsManager::Errors::ResourceNotFoundException
-      raise MissingSecretsError, "unable to find #{secret.namespaced_name} at version stage #{version_stage.serialized_version_stage} in secrets manager" if raise_if_not_found
+      missing_secrets_message = "unable to find #{secret.namespaced_name} at version stage #{version_stage.serialized_version_stage} in secrets manager"
+      raise MissingSecretsError, missing_secrets_message if raise_if_not_found
+
+      Wachtwoord.configuration.logger.warn("[Wachtwoord] #{missing_secrets_message}")
+      MISSING_SECRET_PLACEHOLDER
     end
 
     sig { params(secret_string: String).returns(String) }

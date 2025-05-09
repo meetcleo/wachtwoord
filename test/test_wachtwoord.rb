@@ -48,6 +48,37 @@ class TestWachtwoord < Minitest::Test
     unset_envs
   end
 
+  def test_load_secrets_into_env_not_found_raise
+    set_envs
+    expect_fetch(errors: [{ error_code: Wachtwoord::Fetch::RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }])
+
+    assert_raises(Wachtwoord::Fetch::MissingSecretsError) do
+      described_class.load_secrets_into_env
+    end
+
+    assert_nil(ENV.fetch('BLAH1', nil))
+    assert_equal('already set', ENV.fetch('BLAH2', nil)) # Does not overwrite existing ENV
+  ensure
+    unset_envs
+  end
+
+  def test_load_secrets_into_env_not_found_not_raise
+    Wachtwoord.configure do |config|
+      config.raise_if_secret_not_found = false
+    end
+    set_envs
+    expect_fetch(errors: [{ error_code: Wachtwoord::Fetch::RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }])
+
+    assert_raises(Wachtwoord::ChangingExistingEnvError) do
+      described_class.load_secrets_into_env
+    end
+
+    assert_equal('blah', ENV.fetch('BLAH1', nil)) # Sets the new ENV
+    assert_equal('already set', ENV.fetch('BLAH2', nil)) # Does not overwrite existing ENV
+  ensure
+    unset_envs
+  end
+
   private
 
   def set_envs
@@ -64,13 +95,13 @@ class TestWachtwoord < Minitest::Test
     ENV['SECRET_VERSION_ENV_BLAH2'] = nil
   end
 
-  def expect_fetch
+  def expect_fetch(errors: [])
     client = mock(:client)
     Wachtwoord.expects(:client).returns(client)
     client.expects(:batch_get_secret_value)
           .with({ secret_id_list: ['/blah1', '/blah2'] })
           .returns({
-                     errors: [],
+                     errors:,
                      next_token: nil,
                      secret_values: [
                        {
