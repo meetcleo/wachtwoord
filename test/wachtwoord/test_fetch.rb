@@ -47,13 +47,13 @@ module Wachtwoord
     end
 
     def test_secret_values_by_env_name_with_missing_secret
-      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, errors: [{ error_code: 'ResourceNotFoundException' }]))
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, errors: [{ error_code: Fetch::RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }]))
 
       assert_raises(Fetch::MissingSecretsError) do
         instance(desired_version_stages_by_secret: { secret => version_stage }).secret_values_by_env_name
       end
 
-      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, errors: [{ error_code: 'ResourceNotFoundException' }]))
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:, errors: [{ error_code: Fetch::RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }]))
       result = instance(desired_version_stages_by_secret: { secret => version_stage }, raise_if_not_found: false).secret_values_by_env_name
 
       assert_equal({ 'SOMETHING' => 'blah' }, result)
@@ -98,6 +98,16 @@ module Wachtwoord
       assert_raises(Fetch::MissingSecretsError) do
         instance(desired_version_stages_by_secret: { secret => other_version_stage }).secret_values_by_env_name
       end
+    end
+
+    def test_secret_values_by_env_name_with_older_version_missing_secret_no_raise
+      other_version_stage = VersionStage.new(version_number: version_stage.version_number + 1)
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:))
+      client.expects(:get_secret_value).with({ secret_id: secret.namespaced_name, version_stage: other_version_stage.serialized_version_stage }).raises(::Aws::SecretsManager::Errors::ResourceNotFoundException.new(nil, nil))
+
+      result = instance(desired_version_stages_by_secret: { secret => other_version_stage }, raise_if_not_found: false).secret_values_by_env_name
+
+      assert_equal({ 'SOMETHING' => '' }, result)
     end
 
     private

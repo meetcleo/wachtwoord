@@ -73,7 +73,7 @@ module Wachtwoord
     private
 
     def expect_fetch_secret(already_exists: false)
-      errors = already_exists ? [] : [error_code: 'ResourceNotFoundException']
+      errors = already_exists ? [] : [error_code: Fetch::RESOURCE_NOT_FOUND_ERROR_CLASS_NAME]
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret: already_exists ? secret : nil, version_stage:, errors:))
     end
 

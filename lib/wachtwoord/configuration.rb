@@ -59,6 +59,9 @@ module Wachtwoord
     sig { returns(T::Boolean) }
     attr_accessor :enabled
 
+    sig { returns(T::Boolean) }
+    attr_accessor :raise_if_secret_not_found
+
     sig { returns(T.untyped) }
     attr_accessor :logger
 
@@ -68,9 +71,10 @@ module Wachtwoord
       @secret_version_env_name_prefix = SECRET_VERSION_ENV_NAME_PREFIX
       @allowed_config_names = ENV.fetch('WACHTWOORD_ALLOWED_CONFIG_NAMES', '').split(',')
       @version_stage_prefix = VERSION_STAGE_PREFIX
-      @logger = Logger.new($stdout)
+      @logger = Logger.new($stdout, level: T.unsafe(ENV.fetch('LOG_LEVEL', Logger::INFO)))
       @secrets_namespace = ENV.fetch('WACHTWOORD_SECRETS_NAMESPACE', nil)
       @enabled = ENV.fetch('WACHTWOORD_ENABLED', 'true') == 'true'
+      @raise_if_secret_not_found = ENV.fetch('WACHTWOORD_RAISE_IF_SECRET_NOT_FOUND', 'true') == 'true'
     end
   end
 end

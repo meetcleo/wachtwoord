@@ -9,8 +9,8 @@ require_relative 'wachtwoord/configuration'
 require_relative 'wachtwoord/secret_name_matcher'
 require_relative 'wachtwoord/version_stage'
 require_relative 'wachtwoord/secret'
-require_relative 'wachtwoord/fetch'
 require_relative 'wachtwoord/manager'
+require_relative 'wachtwoord/fetch'
 require_relative 'wachtwoord/import'
 require_relative 'wachtwoord/railtie' if defined? Rails
 
@@ -50,7 +50,7 @@ module Wachtwoord
     sig { params(clash_behaviour: T.nilable(Symbol)).void }
     def load_secrets_into_env(clash_behaviour: :raise)
       clash_behaviour = T.must(clash_behaviour)
-      secret_values_by_env_name = Fetch.new(desired_version_stages_by_secret:, client:).secret_values_by_env_name
+      secret_values_by_env_name = Fetch.new(desired_version_stages_by_secret:, client:, raise_if_not_found: configuration.raise_if_secret_not_found).secret_values_by_env_name
       secret_values_by_env_name.each do |env_name, secret_value|
         new_secret_value = new_value_for_env(env_name:, secret_value:, clash_behaviour:)
         configuration.logger.debug { "[Wachtwoord] setting ENV: #{env_name}" }
