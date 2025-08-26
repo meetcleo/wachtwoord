@@ -65,6 +65,9 @@ module Wachtwoord
     sig { returns(T.untyped) }
     attr_accessor :logger
 
+    sig { returns(T::Array[String]) }
+    attr_accessor :forced_overwrite_config_names
+
     def initialize
       @secret_name_tokens = SECRET_NAME_TOKENS.dup + ENV.fetch('WACHTWOORD_SECRET_NAME_TOKENS', '').split(',')
       @do_not_import_names = DO_NOT_IMPORT_NAMES.dup + ENV.fetch('WACHTWOORD_DO_NOT_IMPORT_NAMES', '').split(',')
@@ -75,6 +78,7 @@ module Wachtwoord
       @secrets_namespace = ENV.fetch('WACHTWOORD_SECRETS_NAMESPACE', nil)
       @enabled = ENV.fetch('WACHTWOORD_ENABLED', 'true') == 'true'
       @raise_if_secret_not_found = ENV.fetch('WACHTWOORD_RAISE_IF_SECRET_NOT_FOUND', 'true') == 'true'
+      @forced_overwrite_config_names = ENV.fetch('WACHTWOORD_FORCED_OVERWRITE_CONFIG_NAMES', '').split(',')
     end
   end
 end

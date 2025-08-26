@@ -89,8 +89,13 @@ module Wachtwoord
       when :raise
         raise ChangingExistingEnvError, "Unexpected change to ENV: #{env_name}"
       when :preserve_env
-        configuration.logger.warn { "[Wachtwoord] not overwriting existing ENV: #{env_name}" }
-        existing_secret_value
+        if configuration.forced_overwrite_config_names.include?(env_name)
+          configuration.logger.warn { "[Wachtwoord] (forced) overwriting existing ENV: #{env_name}" }
+          secret_value
+        else
+          configuration.logger.warn { "[Wachtwoord] not overwriting existing ENV: #{env_name}" }
+          existing_secret_value
+        end
       when :overwrite_env
         configuration.logger.warn { "[Wachtwoord] overwriting existing ENV: #{env_name}" }
         secret_value
