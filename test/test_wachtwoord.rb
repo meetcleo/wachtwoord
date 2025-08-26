@@ -37,6 +37,18 @@ class TestWachtwoord < Minitest::Test
     unset_envs
   end
 
+  def test_load_secrets_into_env_preserve_existing_forced_overwrite
+    set_envs
+    expect_fetch
+    described_class.configuration.forced_overwrite_config_names = ['BLAH2']
+    described_class.load_secrets_into_env(clash_behaviour: :preserve_env)
+
+    assert_equal('blah', ENV.fetch('BLAH1', nil)) # Sets the new ENV
+    assert_equal('unexpected', ENV.fetch('BLAH2', nil)) # BLAH2 is in the forced overwrite list, so overwrites still
+  ensure
+    unset_envs
+  end
+
   def test_load_secrets_into_env_overwrite_existing
     set_envs
     expect_fetch
