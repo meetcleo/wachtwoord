@@ -4,8 +4,10 @@
 module Wachtwoord
   class SecretNameMatcher
     extend T::Sig
+
     class << self
       extend T::Sig
+
       sig { params(token: String).returns(Regexp) }
       def token_to_pattern(token)
         /(\b|_)(#{token})(\b|_)/i

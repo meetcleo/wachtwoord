@@ -7,6 +7,7 @@ module Wachtwoord
     extend Forwardable
     extend T::Sig
     include Comparable
+
     NAMESPACE_SEPARATOR = '/'
     class NilSecretName < StandardError; end
 

@@ -8,6 +8,7 @@ module Wachtwoord
 
     class << self
       extend T::Sig
+
       sig { params(version_number: T.nilable(Integer)).returns(String) }
       def serialized_version_stage(version_number:)
         "#{Wachtwoord.configuration.version_stage_prefix}#{version_number.to_s.rjust(3, '0')}"

@@ -9,6 +9,7 @@
 module Wachtwoord
   class Fetch
     extend T::Sig
+
     class MissingSecretsError < StandardError; end
     class AdditionalSecretsError < StandardError; end
     class FetchingSecretsError < StandardError; end

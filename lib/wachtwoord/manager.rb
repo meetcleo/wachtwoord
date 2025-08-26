@@ -9,6 +9,7 @@
 module Wachtwoord
   class Manager
     extend T::Sig
+
     SECRET_KEY = :value
 
     sig { params(secret: Secret, client: T.untyped).void }

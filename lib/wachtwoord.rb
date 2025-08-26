@@ -16,11 +16,13 @@ require_relative 'wachtwoord/railtie' if defined? Rails
 
 module Wachtwoord
   extend T::Sig
+
   class ChangingExistingEnvError < StandardError; end
   class UnknownClashBehaviourError < StandardError; end
 
   class << self
     extend T::Sig
+
     attr_writer :configuration
 
     sig { returns(Configuration) }

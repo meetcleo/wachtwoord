@@ -4,6 +4,7 @@
 module Wachtwoord
   class Configuration
     extend T::Sig
+
     SECRET_NAME_TOKENS = %w[
       APP_ID
       AUTH

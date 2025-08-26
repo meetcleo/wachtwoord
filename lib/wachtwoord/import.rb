@@ -4,6 +4,7 @@
 module Wachtwoord
   class Import
     extend T::Sig
+
     class ExistingSecretError < StandardError; end
     class ExistingConfigError < StandardError; end
 
