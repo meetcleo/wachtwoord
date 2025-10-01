@@ -41,6 +41,16 @@ module Wachtwoord
       configuration
     end
 
+    sig { void }
+    def load_secrets
+      return unless configuration.enabled
+
+      start_at = Time.now
+      load_secrets_into_env(clash_behaviour: :preserve_env)
+      end_at = Time.now
+      configuration.logger.info("[Wachtwoord] loaded secrets in #{end_at - start_at}s")
+    end
+
     sig { params(name: String, override_namespace: T.nilable(String), blk: T.proc.params(arg0: Manager).returns(Manager)).returns([String, Integer]) }
     def add_or_update(name:, override_namespace: nil, &blk)
       secret = Secret.new(name:, override_namespace:)
