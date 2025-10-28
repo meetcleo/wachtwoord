@@ -6,6 +6,7 @@
 
 module ::Aws::SecretsManager::Client; end
 module ::Aws::SecretsManager::Errors::ResourceNotFoundException; end
+module ::Aws::SecretsManager::Errors::ThrottlingException; end
 class ::Rails::Railtie; end
 module Minitest::Hooks; end
 
