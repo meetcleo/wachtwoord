@@ -68,6 +68,16 @@ module Wachtwoord
       assert_equal({ 'SOMETHING' => 'blah' }, result)
     end
 
+    def test_secret_values_retries_when_throttled
+      described_class.any_instance.expects(:sleep).times(4)
+      client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).raises(Aws::SecretsManager::Errors::ThrottlingException.new(nil, nil)).times(5)
+      client.expects(:get_secret_value).never
+
+      assert_raises(Aws::SecretsManager::Errors::ThrottlingException) do
+        instance(desired_version_stages_by_secret: { secret => VersionStage.newest_version_stage }).secret_values_by_env_name
+      end
+    end
+
     def test_secret_values_by_env_name_with_older_version
       other_version_stage = VersionStage.new(version_number: version_stage.version_number + 1)
       client.expects(:batch_get_secret_value).with({ secret_id_list: [secret.namespaced_name] }).returns(response(secret:, version_stage:))

@@ -16,6 +16,13 @@ module Wachtwoord
     MAX_SECRETS_PER_FETCH = 20 # Limit imposed by AWS
     RESOURCE_NOT_FOUND_ERROR_CLASS_NAME = 'ResourceNotFoundException'
     MISSING_SECRET_PLACEHOLDER = { secret_string: { Wachtwoord::Manager::SECRET_KEY => '' }.to_json }.freeze
+    SECRETS_MANAGER_THOTTLING_WINDOW_IN_SECONDS = 1.0
+    MAXIMUM_RETRY_JITTER_IN_SECONDS = 3.0
+
+    sig { returns(Float) }
+    def self.retry_jitter
+      Random.new.rand(SECRETS_MANAGER_THOTTLING_WINDOW_IN_SECONDS..MAXIMUM_RETRY_JITTER_IN_SECONDS)
+    end
 
     sig { params(desired_version_stages_by_secret: T::Hash[Secret, VersionStage], client: T.untyped, raise_if_not_found: T.nilable(T::Boolean)).void }
     def initialize(desired_version_stages_by_secret:, client:, raise_if_not_found: true)
@@ -100,9 +107,23 @@ module Wachtwoord
       secret_values = T.must(secret_values)
       return secret_values if remaining_secret_id_list.empty?
 
-      response = client.batch_get_secret_value({
-                                                 secret_id_list: remaining_secret_id_list.pop(MAX_SECRETS_PER_FETCH)
-                                               }).to_h
+      secret_id_list = remaining_secret_id_list.pop(MAX_SECRETS_PER_FETCH)
+      response = nil
+      retries_remaining = 4
+      begin
+        response = client.batch_get_secret_value({
+                                                   secret_id_list:
+                                                 }).to_h
+      rescue Aws::SecretsManager::Errors::ThrottlingException
+        raise unless retries_remaining.positive?
+
+        retries_remaining -= 1
+        jitter = self.class.retry_jitter
+        Wachtwoord.configuration.logger.warn("[Wachtwoord] Throttled by AWS Secrets Manager. #{retries_remaining} retries remaining. Retrying in #{jitter} seconds.")
+        sleep jitter
+        retry
+      end
+
       validate_response!(response)
       fetch_paged_current_version_stage_secrets(remaining_secret_id_list:, secret_values: secret_values + response[:secret_values])
     end
