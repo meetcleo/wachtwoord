@@ -13,7 +13,7 @@ module Wachtwoord
     class MissingSecretsError < StandardError; end
     class AdditionalSecretsError < StandardError; end
     class FetchingSecretsError < StandardError; end
-    MAX_SECRETS_PER_FETCH = 20 # Limit imposed by AWS
+    DEFAULT_MAX_SECRETS_PER_FETCH = 20 # Limit imposed by AWS
     RESOURCE_NOT_FOUND_ERROR_CLASS_NAME = 'ResourceNotFoundException'
     MISSING_SECRET_PLACEHOLDER = { secret_string: { Wachtwoord::Manager::SECRET_KEY => '' }.to_json }.freeze
     SECRETS_MANAGER_THOTTLING_WINDOW_IN_SECONDS = 1.0
@@ -107,7 +107,7 @@ module Wachtwoord
       secret_values = T.must(secret_values)
       return secret_values if remaining_secret_id_list.empty?
 
-      secret_id_list = remaining_secret_id_list.pop(MAX_SECRETS_PER_FETCH)
+      secret_id_list = remaining_secret_id_list.pop(Wachtwoord.configuration.max_secrets_per_fetch)
       response = nil
       retries_remaining = 4
       begin
