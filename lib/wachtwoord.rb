@@ -72,7 +72,9 @@ module Wachtwoord
 
     sig { returns(T.untyped) }
     def client
-      T.let(::Aws::SecretsManager::Client, T.untyped).new(region:)
+      options = { region: }
+      options[:endpoint] = configuration.secrets_manager_endpoint if configuration.secrets_manager_endpoint
+      T.let(::Aws::SecretsManager::Client, T.untyped).new(options)
     end
 
     private

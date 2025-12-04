@@ -69,6 +69,13 @@ module Wachtwoord
     sig { returns(T::Array[String]) }
     attr_accessor :forced_overwrite_config_names
 
+    sig { returns(T.nilable(String)) }
+    attr_accessor :secrets_manager_endpoint
+
+    # do not change unless you're running a secrets manager proxy
+    sig { returns(Integer) }
+    attr_accessor :max_secrets_per_fetch
+
     def initialize
       @secret_name_tokens = SECRET_NAME_TOKENS.dup + ENV.fetch('WACHTWOORD_SECRET_NAME_TOKENS', '').split(',')
       @do_not_import_names = DO_NOT_IMPORT_NAMES.dup + ENV.fetch('WACHTWOORD_DO_NOT_IMPORT_NAMES', '').split(',')
@@ -80,6 +87,8 @@ module Wachtwoord
       @enabled = ENV.fetch('WACHTWOORD_ENABLED', 'true') == 'true'
       @raise_if_secret_not_found = ENV.fetch('WACHTWOORD_RAISE_IF_SECRET_NOT_FOUND', 'true') == 'true'
       @forced_overwrite_config_names = ENV.fetch('WACHTWOORD_FORCED_OVERWRITE_CONFIG_NAMES', '').split(',')
+      @secrets_manager_endpoint = ENV.fetch('WACHTWOORD_SECRETS_MANAGER_ENDPOINT', nil)
+      @max_secrets_per_fetch = Integer(ENV.fetch('WACHTWOORD_MAX_SECRETS_PER_FETCH', Fetch::DEFAULT_MAX_SECRETS_PER_FETCH))
     end
   end
 end
