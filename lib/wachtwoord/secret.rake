@@ -16,8 +16,10 @@ namespace :secret do # rubocop:disable Metrics/BlockLength
 
       abort 'Did not get a yes, aborting'.red if $stdin.gets.strip.downcase != 'y'
 
+      puts 'Paste your secret below.'
+      puts 'Press Ctrl+D when finished.'
       puts 'Enter the secret value>'
-      manager.value = $stdin.gets.chomp
+      manager.value = $stdin.read.strip
 
       unless manager.existing_secret?
         puts 'Add an optional description>'

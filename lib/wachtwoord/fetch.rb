@@ -132,8 +132,7 @@ module Wachtwoord
     def validate_response!(response)
       raise AdditionalSecretsError, 'A `next_token` was provided in the response indicating there is more data to fetch, but we do not support this' if response[:next_token]
 
-      not_found_errors = response[:errors].select { |error| error[:error_code] == RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }
-      other_errors = response[:errors].reject { |error| error[:error_code] == RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }
+      not_found_errors, other_errors = response[:errors].partition { |error| error[:error_code] == RESOURCE_NOT_FOUND_ERROR_CLASS_NAME }
       raise FetchingSecretsError, "errors from secrets manager API: #{other_errors}" if other_errors.any?
 
       return unless not_found_errors.any?

@@ -35,8 +35,8 @@ module Wachtwoord
       @configuration = Configuration.new
     end
 
-    sig { returns(Configuration) }
-    def configure
+    sig { params(_blk: T.untyped).returns(Configuration) }
+    def configure(&_blk) # rubocop:disable Naming/BlockForwarding
       yield(configuration)
       configuration
     end

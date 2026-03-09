@@ -12,8 +12,8 @@ module Wachtwoord
 
     SECRET_KEY = :value
 
-    sig { params(secret: Secret, client: T.untyped).void }
-    def initialize(secret:, client:)
+    sig { params(secret: Secret, client: T.untyped, _blk: T.untyped).void }
+    def initialize(secret:, client:, &_blk)
       @secret = secret
       @client = client
       yield self
