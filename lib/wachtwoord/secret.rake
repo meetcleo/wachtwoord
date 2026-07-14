@@ -1,34 +1,20 @@
 # typed: true
 # frozen_string_literal: true
 
-namespace :secret do # rubocop:disable Metrics/BlockLength
-  desc "Creates a secret or adds a version to an existing secret, rake secret:add['name_of_secret']"
-  task :add, [:name_of_secret] => :environment do |_t, args|
+namespace :secret do
+  desc "Creates a secret or adds a version to an existing secret, rake secret:add['name_of_secret']. " \
+       'With piped stdin (non-interactive) the value is read from stdin until EOF, prompts are ' \
+       "skipped, and the description may be passed as a second arg: rake secret:add['name','description']"
+  task :add, %i[name_of_secret description] => :environment do |_t, args|
     raise 'We only store secrets in secrets manager for production and staging' unless Rails.env.production?
 
-    name = args[:name_of_secret]
-    secret_env, version_number = Wachtwoord.add_or_update(name:) do |manager|
-      if manager.existing_secret?
-        puts "Secret called `#{name}` already exists, would you like to add a new version? (y/n)>"
-      else
-        puts "Secret called `#{name}` does not exist, would you like to create it? (y/n)>"
-      end
-
-      abort 'Did not get a yes, aborting'.red if $stdin.gets.strip.downcase != 'y'
-
-      puts 'Paste your secret below.'
-      puts 'Press Ctrl+D when finished.'
-      puts 'Enter the secret value>'
-      manager.value = $stdin.read.strip
-
-      unless manager.existing_secret?
-        puts 'Add an optional description>'
-        manager.description = $stdin.gets.chomp
-      end
-      manager
-    end
+    secret_env, version_number = Wachtwoord::AddCommand.new(name: args[:name_of_secret], description: args[:description]).run
 
     puts "Add the following to your .env.x file to use this version: #{secret_env}=#{version_number}"
+  rescue Wachtwoord::AddCommand::NotConfirmedError
+    abort 'Did not get a yes, aborting'.red
+  rescue Wachtwoord::AddCommand::EmptyValueError
+    abort 'Empty secret value, aborting'.red
   end
 
   desc 'Creates a secret or adds a version to an existing secret, rake secret:import_from_heroku[cleo-staging-private,.env.staging,false]'
