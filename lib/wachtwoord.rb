@@ -12,7 +12,7 @@ require_relative 'wachtwoord/secret'
 require_relative 'wachtwoord/manager'
 require_relative 'wachtwoord/fetch'
 require_relative 'wachtwoord/import'
-require_relative 'wachtwoord/add_command'
+require_relative 'wachtwoord/commands/add'
 require_relative 'wachtwoord/railtie' if defined? Rails
 
 module Wachtwoord

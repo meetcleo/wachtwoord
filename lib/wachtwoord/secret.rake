@@ -8,12 +8,12 @@ namespace :secret do
   task :add, %i[name_of_secret description] => :environment do |_t, args|
     raise 'We only store secrets in secrets manager for production and staging' unless Rails.env.production?
 
-    secret_env, version_number = Wachtwoord::AddCommand.new(name: args[:name_of_secret], description: args[:description]).run
+    secret_env, version_number = Wachtwoord::Commands::Add.new(name: args[:name_of_secret], description: args[:description]).run
 
     puts "Add the following to your .env.x file to use this version: #{secret_env}=#{version_number}"
-  rescue Wachtwoord::AddCommand::NotConfirmedError
+  rescue Wachtwoord::Commands::Add::NotConfirmedError
     abort 'Did not get a yes, aborting'.red
-  rescue Wachtwoord::AddCommand::EmptyValueError
+  rescue Wachtwoord::Commands::Add::EmptyValueError
     abort 'Empty secret value, aborting'.red
   end
 
