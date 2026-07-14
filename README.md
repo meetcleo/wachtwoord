@@ -142,6 +142,19 @@ Add the following to your .env.x file to use this version: SECRET_VERSION_ENV_<n
 
 By setting this in your application's ENV `SECRET_VERSION_ENV_<name_of_secret>=1` you're telling Wachtwoord you wish to receive this secret's value at the first version.
 
+### Non-interactive (scripted) use:
+
+When stdin is not a TTY, `secret:add` skips all prompts: the value is read from stdin until EOF, and the description (only used for brand-new secrets) may be passed as a second task argument. The value never appears in your terminal or shell history if you keep it in a variable:
+
+    $ printf '%s' "$SECRET_VALUE" | bundle exec rake secret:add\['<name_of_secret>','<description>'\]
+
+```
+Secret called `<name_of_secret>` does not exist, creating it (non-interactive, reading the value from stdin)
+Add the following to your .env.x file to use this version: SECRET_VERSION_ENV_<name_of_secret>=1
+```
+
+An empty stdin aborts without writing anything. Note rake splits task arguments on commas, so keep commas out of the description.
+
 ### Changing the value of a secret:
 
     $ bundle exec rake secret:add\['<name_of_secret>'\]
